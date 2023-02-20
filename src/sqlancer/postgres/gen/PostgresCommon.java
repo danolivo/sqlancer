@@ -54,6 +54,7 @@ public final class PostgresCommon {
         errors.add("invalid hexadecimal data: odd number of digits");
         errors.add("zero raised to a negative power is undefined");
         errors.add("cannot convert infinity to numeric");
+		errors.add("cannot convert infinity to integer");
         errors.add("division by zero");
         errors.add("invalid input syntax for type money");
         errors.add("invalid input syntax for type");
@@ -102,6 +103,7 @@ public final class PostgresCommon {
         errors.add("requested length too large"); // repeat
         errors.add("invalid memory alloc request size"); // repeat
         errors.add("encoding conversion from UTF8 to ASCII not supported"); // to_ascii
+        errors.add("encoding conversion from SQL_ASCII to ASCII not supported"); // In reality, any conversion invloving SQL_ASCII
         errors.add("negative substring length not allowed"); // substr
         errors.add("invalid mask length"); // set_masklen
     }
@@ -231,6 +233,7 @@ public final class PostgresCommon {
             ArrayList<StorageParameters> values = new ArrayList<>(Arrays.asList(StorageParameters.values()));
             values.remove(StorageParameters.OIDS);
             errors.add("unrecognized parameter");
+            errors.add("cannot specify storage parameters for a partitioned table");
             errors.add("ALTER TABLE / ADD CONSTRAINT USING INDEX is not supported on partitioned tables");
             List<StorageParameters> subset = Randomly.nonEmptySubset(values);
             int i = 0;
