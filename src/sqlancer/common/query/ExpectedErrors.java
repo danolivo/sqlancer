@@ -24,7 +24,15 @@ public class ExpectedErrors {
         errors.add(error);
         return this;
     }
-
+/*
+    public ExpectedErrors del(String error) {
+        if (error == null) {
+            throw new IllegalArgumentException();
+        }
+        errors.remove(String.ValueOf(error));
+        return this;
+    }
+*/
     public ExpectedErrors addRegex(Pattern errorPattern) {
         if (errorPattern == null) {
             throw new IllegalArgumentException();

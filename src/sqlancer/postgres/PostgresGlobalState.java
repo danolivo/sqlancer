@@ -20,6 +20,8 @@ public class PostgresGlobalState extends SQLGlobalState<PostgresOptions, Postgre
     public static final char STABLE = 's';
     public static final char VOLATILE = 'v';
 
+    public  String pgVersionString = "";
+
     private List<String> operators = Collections.emptyList();
     private List<String> collates = Collections.emptyList();
     private List<String> opClasses = Collections.emptyList();
@@ -32,6 +34,13 @@ public class PostgresGlobalState extends SQLGlobalState<PostgresOptions, Postgre
     public void setConnection(SQLConnection con) {
         super.setConnection(con);
         try {
+            /*
+             * Different connections are established to the same instance.
+             * XXX: Think about benchmarking of a master-replica configurations.
+             */
+            if (this.pgVersionString.isEmpty())
+                this.pgVersionString = getVersion(getConnection());
+
             this.opClasses = getOpclasses(getConnection());
             this.operators = getOperators(getConnection());
             this.collates = getCollnames(getConnection());
@@ -39,6 +48,25 @@ public class PostgresGlobalState extends SQLGlobalState<PostgresOptions, Postgre
         } catch (SQLException e) {
             throw new AssertionError(e);
         }
+    }
+
+    /*
+     * Error interfaces (and may be some commands) may differ in major versions
+     * of PostgreSQL. We should allow to distinguish it during the test.
+     * XXX: Is it essential for all DBMS'es and should be implemented somewhere
+     * higher?
+     */
+    private String getVersion(SQLConnection con) throws SQLException {
+        String versionString = new String();
+        try (Statement s = con.createStatement()) {
+            try (ResultSet rs = s.executeQuery("SELECT version();")) {
+                if (!rs.next() || !rs.isLast())
+                    throw new UnsupportedOperationException("Unexpected result of the PostgreSQL version() routine");
+                versionString = rs.getString(1);
+                System.out.println("PostgreSQL version: " + versionString);
+            }
+        }
+        return versionString;
     }
 
     private List<String> getCollnames(SQLConnection con) throws SQLException {
